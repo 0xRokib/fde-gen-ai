@@ -1,8 +1,28 @@
-# Ticket summarizer (Node.js 20+)
+# Lesson 01: Basic LLM Call Server
 
-Send support ticket as text. Server asks Neptune chat model for two-line summary and returns plain text.
+Build a small Node.js/Express server that sends a support ticket to an OpenAI-compatible model and returns a plain-text summary.
 
-## Start
+## Learning goals
+
+By the end of this lesson, you should be able to:
+
+- Keep provider credentials in environment variables rather than source code.
+- Configure the OpenAI SDK with a provider URL and model ID.
+- Separate system instructions from user-provided text.
+- Call `chat.completions.create` and extract the model's response.
+- Validate incoming requests and handle provider failures.
+
+## Prerequisites
+
+- Node.js 20+ and npm.
+- Basic JavaScript, HTTP, and terminal knowledge.
+- An API key, an OpenAI-compatible chat-completions URL, and an available model ID from your provider.
+
+The environment variables retain the `NEPTUNE_` names used in the original lesson. The code does not hardcode a provider endpoint or model. Compatibility depends on your provider's API.
+
+## 1. Install and configure
+
+From the repository root:
 
 ```bash
 cd basic-llm-call-server
@@ -10,11 +30,38 @@ npm ci
 cp .env.example .env
 ```
 
-Open `.env` and set `NEPTUNE_API_KEY`, `NEPTUNE_BASE_URL` (your provider’s OpenAI-compatible API URL), and `NEPTUNE_MODEL` (your provider’s model ID). Adjust `PORT` if needed. Keep `.env` private. Then:
+On Windows PowerShell, use `Copy-Item .env.example .env`.
+
+Edit `.env`:
+
+| Variable | Purpose |
+| --- | --- |
+| `NEPTUNE_API_KEY` | Your private provider API key |
+| `NEPTUNE_BASE_URL` | Provider's OpenAI-compatible API base URL, usually ending in `/v1`; consult its documentation |
+| `NEPTUNE_MODEL` | Exact model ID available to your account |
+| `PORT` | Local HTTP port; defaults to `8080` |
+
+The URL and model in `.env.example` are placeholders, not a working service. Replace them with your provider's settings. Do not append `/chat/completions` to the base URL; the SDK adds the endpoint path.
+
+## 2. Start the server
 
 ```bash
 npm start
 ```
+
+Expected startup message with the default port:
+
+```text
+Ticket summarizer listening on port 8080
+```
+
+For automatic restarts while editing:
+
+```bash
+npm run dev
+```
+
+## 3. Send a ticket
 
 In another terminal:
 
@@ -24,6 +71,79 @@ curl -X POST http://localhost:8080/api/summarize \
   --data 'Customers cannot complete checkout because the payment page times out.'
 ```
 
-Everything happens in `src/server.js`: load key, receive ticket, call chat-completions API, return summary. Change prompt or model there. `.env` holds your private key; never paste it into code.
+Use `curl.exe` in Windows PowerShell and put the command on one line if your shell does not support the backslash continuation syntax.
 
-API key stays server-side. Model availability and live provider response require your own key to verify. Do not expose this billable API publicly without authentication and rate limiting.
+Illustrative output, not a guaranteed response:
+
+```text
+The payment page times out during checkout.
+Affected customers cannot complete purchases.
+```
+
+The prompt asks for two brief lines; the server does not enforce that format. Actual wording and instruction-following vary by model.
+
+## 4. Understand the code
+
+Everything lives in [`src/server.js`](./src/server.js).
+
+1. **Load configuration:** `dotenv/config` reads `.env` from the working directory. Startup checks reject missing settings and invalid ports.
+2. **Create the client:** `new OpenAI({ apiKey, baseURL })` connects the SDK to the chosen provider.
+3. **Read the request:** `express.text` accepts `text/plain` bodies up to `100kb`.
+4. **Validate the ticket:** empty text or unsupported body types return `400` before calling the model.
+5. **Build messages:** the system message defines the summarization task; the user message contains the ticket.
+6. **Call the model:** `client.chat.completions.create({ model, messages })` requests a completion.
+7. **Read the result:** `response.choices?.[0]?.message?.content` extracts the first response. Missing or empty content is treated as a failure.
+8. **Respond:** successful summaries return plain text; provider or response failures return a generic `502` message.
+
+There is no database, browser UI, streaming, authentication, or conversation history in this lesson.
+
+## 5. Check validation without an LLM call
+
+With the server running:
+
+```bash
+curl -i -X POST http://localhost:8080/api/summarize \
+  -H 'Content-Type: text/plain' \
+  --data ' '
+```
+
+Expected: HTTP `400` with `Ticket text is required.` This request is rejected locally and does not call the provider.
+
+Check JavaScript syntax:
+
+```bash
+node --check src/server.js
+```
+
+This lesson currently has no automated test suite. A syntax check does not verify a live model call.
+
+## Troubleshooting
+
+| Symptom | What to check |
+| --- | --- |
+| `NEPTUNE_API_KEY is required.` (or another required-setting error) | Create `.env`, fill in all three provider settings, and start from the lesson folder |
+| `PORT must be an integer between 1 and 65535.` | Use a valid integer port in `.env` |
+| `EADDRINUSE` | Stop the process using the port or choose another `PORT`; update your curl URL too |
+| HTTP `400` | Send non-empty text with `Content-Type: text/plain`, not JSON |
+| HTTP `413` | Request body exceeds the `100kb` parser limit |
+| HTTP `502` | Check the server terminal and provider documentation for key, URL, model, quota, or connectivity problems |
+
+Do not paste credentials or unredacted provider logs into issues.
+
+## Exercises
+
+1. Change the prompt to request three bullet points. Compare outputs across several fictional tickets.
+2. Submit a non-ticket message and check whether the model follows the rejection instruction.
+3. Add a maximum ticket-length check before the provider call.
+4. Add a `GET /health` endpoint that does not call the model.
+5. Write tests for empty input and a mocked provider response without using a real API key.
+
+Reflection: which guarantees come from server validation, and which are only requests made to the model?
+
+## Safety and limitations
+
+API keys stay server-side, but ticket text is sent to your provider. Use fictional data and monitor API spending. Do not expose this billable endpoint publicly without authentication and rate limiting. Prompt instructions do not prevent all prompt injection, and returned summaries may be wrong.
+
+Express starts the server without an explicit host restriction; `localhost` in these examples is not a guarantee of localhost-only binding. Keep this exercise in a trusted local environment.
+
+[Back to the learning index](../README.md)
