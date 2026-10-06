@@ -8,11 +8,13 @@ This is a personal learning repository, not official course material. Examples a
 
 Developers comfortable with basic JavaScript who want to understand how to build applications with LLM APIs. Start with the first lesson; new lessons will be added in separate folders as the course progresses.
 
-## Lessons
+## Chapter index
 
-| Lesson | What you will learn | Code and guide |
+Follow chapters in numeric order. Folder prefixes (`01-`, `02-`, and so on) keep the learning path easy to navigate.
+
+| Chapter | What you will learn | Code and guide |
 | --- | --- | --- |
-| 01 — Basic LLM Call Server | Call an OpenAI-compatible model from an Express server, write a system prompt, and handle responses and errors | [basic-llm-call-server](./basic-llm-call-server/) |
+| 01 — Basic LLM Call Server | Call a custom OpenAI-compatible API from Express, compare it with direct OpenAI setup, and handle responses and errors | [01-basic-llm-call-server](./01-basic-llm-call-server/) |
 
 Only completed lessons are listed here.
 
@@ -22,7 +24,7 @@ You need Node.js 20+, npm, Git, and an API key for a provider that supports Open
 
 ```bash
 git clone https://github.com/0xRokib/fde-gen-ai.git
-cd fde-gen-ai/basic-llm-call-server
+cd fde-gen-ai/01-basic-llm-call-server
 npm ci
 cp .env.example .env
 ```
@@ -35,7 +37,7 @@ Fill in the provider URL, model ID, and API key in `.env`, then run:
 npm start
 ```
 
-Follow the [lesson guide](./basic-llm-call-server/README.md) to send your first request, understand the code, and try the exercises.
+Follow the [lesson guide](./01-basic-llm-call-server/README.md) to send your first request, understand the code, and try the exercises.
 
 ## Repository structure
 
@@ -43,7 +45,7 @@ Follow the [lesson guide](./basic-llm-call-server/README.md) to send your first 
 fde-gen-ai/
 ├── README.md                   # Learning index and getting started
 ├── CONTRIBUTING.md             # How to report issues and add lessons
-└── basic-llm-call-server/       # Lesson 01
+└── 01-basic-llm-call-server/    # Chapter 01
     ├── README.md               # Walkthrough, requests, and exercises
     ├── .env.example            # Safe configuration template
     ├── package.json

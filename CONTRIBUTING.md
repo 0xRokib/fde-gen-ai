@@ -17,7 +17,7 @@ Include the lesson folder, Node.js version, command you ran, expected result, an
 For the basic LLM server:
 
 ```bash
-cd basic-llm-call-server
+cd 01-basic-llm-call-server
 npm ci
 node --check src/server.js
 ```
@@ -26,7 +26,7 @@ For server changes, also verify startup and empty-input rejection using the less
 
 ## Lesson format
 
-Keep each lesson in a descriptive, kebab-case folder at the repository root. Include:
+Keep each lesson in a numbered, descriptive, kebab-case folder at the repository root, such as `01-basic-llm-call-server`. Use the next available two-digit chapter number for a new lesson. Include:
 
 - A README with learning goals, prerequisites, setup, a runnable example, a code walkthrough, troubleshooting, and exercises.
 - Source code and the package manifest/lockfile needed to reproduce the example.
