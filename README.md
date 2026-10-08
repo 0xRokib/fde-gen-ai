@@ -1,26 +1,23 @@
 # FDE.AI Learning Lab
 
-A growing collection of hands-on generative AI lessons from my FDE.AI learning journey, shared so others can learn, run the examples, and experiment.
+Hands-on lessons for building small AI applications with JavaScript, Express, and model APIs. This is a personal learning repository, not official course material or production-ready software.
 
-This is a personal learning repository, not official course material. Examples are educational starting points, not production-ready services.
+**Start here if you know basic JavaScript and want to learn how a server calls an LLM (large language model).**
 
-## Who this is for
+## Learning path
 
-Developers comfortable with basic JavaScript who want to understand how to build applications with LLM APIs. Start with the first lesson; new lessons will be added in separate folders as the course progresses.
+Follow the chapters in order. Each guide includes setup, requests you can run, a code walkthrough, and exercises.
 
-## Chapter index
-
-Follow chapters in numeric order. Folder prefixes (`01-`, `02-`, and so on) keep the learning path easy to navigate.
-
-| Chapter | What you will learn | Code and guide |
+| Chapter | Build | Learn |
 | --- | --- | --- |
-| 01 — Basic LLM Call Server | Call a custom OpenAI-compatible API from Express, compare it with direct OpenAI setup, and handle responses and errors | [01-basic-llm-call-server](./01-basic-llm-call-server/) |
+| [01 — Basic LLM Call Server](./01-basic-llm-call-server/) | A support-ticket summarizer | Provider configuration, system/user messages, API calls, and input validation |
+| [02 — Customer Support Chat Server](./02-customer-support-chat-server/) | A food-ordering support chatbot | Conversation history, follow-up context, ordered requests, and resetting a chat |
 
-Only completed lessons are listed here.
+**01 handles one ticket at a time. 02 continues a conversation.** Both use the same provider settings and Chat Completions API. Chapter 02 remembers messages in a shared server-side array and resends them on later calls—not through model training or a database.
 
-## Quick start
+## Get started
 
-You need Node.js 20+, npm, Git, and an API key for a provider that supports OpenAI-compatible chat completions. Provider calls may incur charges.
+You need **Node.js 20+, npm, Git**, and a provider account with an API key, base URL, and model supporting OpenAI-compatible Chat Completions. Live calls may cost money.
 
 ```bash
 git clone https://github.com/0xRokib/fde-gen-ai.git
@@ -29,47 +26,34 @@ npm ci
 cp .env.example .env
 ```
 
-On Windows PowerShell, use `Copy-Item .env.example .env` instead of `cp`.
-
-Fill in the provider URL, model ID, and API key in `.env`, then run:
+Fill in `.env` with your provider's `NEPTUNE_API_KEY`, `NEPTUNE_BASE_URL`, and `NEPTUNE_MODEL`, then run:
 
 ```bash
 npm start
 ```
 
-Follow the [lesson guide](./01-basic-llm-call-server/README.md) to send your first request, understand the code, and try the exercises.
+The OpenAI SDK can call a compatible custom provider; it does not mean requests go to OpenAI. The base URL determines the service used.
 
-## Repository structure
+Follow the [Chapter 01 guide](./01-basic-llm-call-server/README.md) to send your first ticket. Both lessons use `http://localhost:8080` in their examples; stop one before starting the other on the same port. These are APIs, not websites—opening `/` in a browser will not show a page.
 
-```text
-fde-gen-ai/
-├── README.md                   # Learning index and getting started
-├── CONTRIBUTING.md             # How to report issues and add lessons
-└── 01-basic-llm-call-server/    # Chapter 01
-    ├── README.md               # Walkthrough, requests, and exercises
-    ├── .env.example            # Safe configuration template
-    ├── package.json
-    ├── package-lock.json
-    └── src/server.js
-```
+On Windows PowerShell, use `Copy-Item .env.example .env` instead of `cp`.
 
-Each lesson owns its dependencies and configuration. Run its commands from that lesson's folder; there is no root-level npm application.
+## How to study
 
-## How to learn with this repo
+1. **Run:** follow the guide and send a fictional ticket or message.
+2. **Trace:** read `src/server.js` from configuration to request handling to model reply.
+3. **Experiment:** change one prompt instruction and compare several outputs.
+4. **Check:** try blank input and run the lesson's syntax-check command. Syntax checks do not verify live model behavior.
+5. **Practice:** complete the exercises and explain what the server guarantees versus what the prompt only asks for.
 
-1. Read a lesson's goals and run the example unchanged.
-2. Trace the request through the code.
-3. Change one thing at a time and compare the results.
-4. Try the exercises and note what worked or failed.
+Each numbered lesson has its own `README.md`, `.env.example`, npm dependencies, and `src/server.js`. Run commands inside that lesson's folder; there is no root-level npm application.
 
-## Safety and privacy
+## Use safely
 
-- Never commit API keys or `.env` files. Local environment files and `node_modules` are ignored by Git.
-- Use fictional tickets. Requests send text to your chosen model provider; do not send personal or confidential data without authorization.
-- Set provider spending limits where available. Repeated requests can cost money.
-- Do not deploy the lesson server publicly as-is. It has no authentication or rate limiting.
-- Model output can be inaccurate. Prompts are instructions, not guarantees or security boundaries.
+- Keep credentials in ignored `.env` files; never commit or share API keys.
+- Use fictional data. Messages go to your configured provider, whose privacy and billing policies apply.
+- Monitor spending: longer conversations resend more text and can cost more.
+- Keep these demos local. They have no authentication or rate limiting; Chapter 02 shares one conversation across all callers.
+- Treat model output as unverified. Prompts do not guarantee correct answers or prevent all prompt injection.
 
-## Contributing
-
-Found a confusing step or a bug? Open an [issue](https://github.com/0xRokib/fde-gen-ai/issues) or send a pull request. See [CONTRIBUTING.md](./CONTRIBUTING.md) for the lesson format and verification expectations.
+Found a bug or confusing explanation? See [CONTRIBUTING.md](./CONTRIBUTING.md) for how to help.
