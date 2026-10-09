@@ -1,39 +1,43 @@
 # Gen AI Learning Lab
 
-Two small JavaScript projects for learning how to build with LLM APIs. Start with Chapter 01, then Chapter 02.
+A growing collection of hands-on chapters for learning to build AI applications with JavaScript. Each chapter introduces a concept through a small working project.
 
-## Chapters
+Start with Chapter 01 and work through the chapters in order. More chapters will be added as the learning journey continues.
 
-- **[01 — Ticket Summarizer](./01-basic-llm-call-server/README.md):** Send one support ticket; get a short summary. Learn prompts, API calls, and input validation.
-- **[02 — Support Chat](./02-customer-support-chat-server/README.md):** Chat with a food-ordering support bot in your browser. Learn conversation history, follow-ups, and resetting a chat.
+## Learning path
 
-**Main difference:** Chapter 01 handles each request separately. Chapter 02 resends earlier messages to give the model context.
+- **[01 — Ticket Summarizer](./01-basic-llm-call-server/README.md)**
+  Make your first LLM API call. Learn provider configuration, prompts, message roles, and input validation.
+- **[02 — Support Chat](./02-customer-support-chat-server/README.md)**
+  Build a browser chatbot. Learn conversation history, follow-up context, request ordering, and resetting a chat.
 
-## Start
+Chapter 01 processes one ticket at a time. Chapter 02 builds on that foundation by including earlier messages in each model call.
 
-You need **Node.js 20+, npm**, and an API key from a provider supporting OpenAI-compatible Chat Completions.
+## Before you start
 
-```bash
-cd 01-basic-llm-call-server
-npm ci
-cp .env.example .env
-```
+You need:
 
-Fill in `.env`:
+- Basic JavaScript knowledge: variables, arrays, functions, and `async`/`await`.
+- **Node.js 20+**, **npm**, and a terminal.
+- A provider account with an API key, API base URL, and model ID supporting **OpenAI-compatible Chat Completions**.
 
-```dotenv
-NEPTUNE_API_KEY=your-key
-NEPTUNE_BASE_URL=https://your-provider.example/v1
-NEPTUNE_MODEL=your-model-id
-PORT=8080
-```
+An **LLM** (large language model) generates text from instructions and input. Your app sends those messages to a provider's API and receives a generated reply. You are using an existing model, not training one.
 
-Then run `npm start` and follow the chapter guide. The base URL chooses your provider; using the OpenAI SDK does not require using OpenAI.
+Both current chapters use the OpenAI SDK, a JavaScript library for making model requests. The configured base URL determines the provider; the SDK does not require that provider to be OpenAI.
 
-Each chapter is a separate app. Run commands inside its folder. Both default to port `8080`, so run one at a time. Chapter 01 is API-only; Chapter 02 has a chat page.
+## How to use each chapter
 
-## Keep in mind
+1. **Run it:** follow the chapter's setup and try its example.
+2. **Trace it:** read the code walkthrough alongside `src/server.js`.
+3. **Experiment:** change one instruction or input and compare results.
+4. **Check your understanding:** answer the chapter's recap questions.
 
-Use fictional data: messages go to your provider and calls may cost money. Keep API keys private in `.env`. These are learning demos, not production apps: no authentication or rate limiting. Chapter 02 shares one conversation across all callers. Model answers can be wrong.
+Each chapter has its own dependencies and `.env` settings. Run npm commands inside that chapter's folder, not at the repository root. Both current servers default to port `8080`; stop one before starting the other.
+
+Setup commands use macOS/Linux shell syntax. In Windows PowerShell, use `Copy-Item .env.example .env` instead of `cp`, and `curl.exe` instead of `curl` (put the request on one line).
+
+## Use safely
+
+Use fictional data: messages go to your provider and calls may cost money. Keep API keys private in ignored `.env` files. These are learning demos, not production apps: no authentication or rate limiting. Chapter 02 shares one conversation across all callers. Treat model output as unverified.
 
 [Contributing](./CONTRIBUTING.md)
