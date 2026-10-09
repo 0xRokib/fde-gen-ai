@@ -74,24 +74,26 @@ Opening `/` in a browser will not show a website. On Windows PowerShell, use `Co
 1. Load and validate `.env`, then create the provider client and Express app.
 2. Read a `text/plain` body, up to `100kb`; reject blank or non-text input.
 3. `runInOrder(operation)` waits for earlier chat/reset work to finish.
-4. `getChatReply(message)` sends the system prompt, history, and new message to the model.
+4. The chat route sends the system prompt, history, and new message to the model.
 5. Read the reply and save both messages only after success.
 6. Return the reply as plain text. Express 5 forwards async errors to the shared error handler.
 
 ### What is history?
 
-`history` is an array in server memory. On a follow-up, the model receives messages shaped like this:
+`history` is an array in server memory. Its first item is the `system` message containing the AI's instructions. On a follow-up, the model receives messages shaped like this:
 
 ```js
 [
-  { role: "system", content: SYSTEM_PROMPT },
+  { role: "system", content: "You are a customer-support agent for Tomato..." },
   { role: "user", content: "My food order is late." },
   { role: "assistant", content: "An example support reply..." },
   { role: "user", content: "Can I cancel it?" }
 ]
 ```
 
-`system` gives instructions, `user` is the customer, and `assistant` is the model. `...history` inserts earlier messages. This is **not model training or a database**: the server resends saved text each time. Restarting or resetting clears it.
+`system` gives instructions, `user` is the customer, and `assistant` is the model. `history.slice()` makes a copy of the conversation, and `messages.push(...)` adds the new customer message to that copy. After a successful AI reply, two `history.push(...)` calls save the customer's message and the AI's answer. Failed calls leave history unchanged.
+
+To reset the conversation, `history.length = 1` keeps only the first item: the AI's instructions. This is **not model training or a database**: the server resends saved text each time. Restarting or resetting removes the customer messages and AI replies.
 
 ### Why a queue?
 
