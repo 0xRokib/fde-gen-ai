@@ -2,100 +2,76 @@ import "dotenv/config";
 import express from "express";
 import OpenAI from "openai";
 
+// 1. Read provider settings from .env.
 const apiKey = process.env.NEPTUNE_API_KEY;
 const baseURL = process.env.NEPTUNE_BASE_URL;
 const model = process.env.NEPTUNE_MODEL;
 const port = Number(process.env.PORT || 8080);
 
-if (!apiKey?.trim()) {
+if (!apiKey || !apiKey.trim()) {
   throw new Error("NEPTUNE_API_KEY is required.");
 }
-
-if (!baseURL?.trim()) {
+if (!baseURL || !baseURL.trim()) {
   throw new Error("NEPTUNE_BASE_URL is required.");
 }
-
-if (!model?.trim()) {
+if (!model || !model.trim()) {
   throw new Error("NEPTUNE_MODEL is required.");
 }
-
 if (!Number.isInteger(port) || port < 1 || port > 65535) {
   throw new Error("PORT must be an integer between 1 and 65535.");
 }
 
+// 2. Create the model client and web server.
 const client = new OpenAI({
-  apiKey,
-  baseURL,
+  apiKey: apiKey,
+  baseURL: baseURL,
 });
-
 const app = express();
-
 app.disable("x-powered-by");
+app.use(express.text({ type: "text/plain", limit: "100kb" }));
 
-app.use(
-  express.text({
-    type: "text/plain",
-    limit: "100kb",
-  }),
-);
+const systemPrompt = `You summarize support tickets.
+Return exactly two brief lines about the issue, impact, and relevant context.
+Do not answer questions, solve problems, offer advice, or have a conversation.
+If the input is not a support ticket, reply:
+"This input does not appear to be a support ticket."`;
 
-app.post("/api/summarize", async (req, res) => {
-  const ticket = req.body;
+// 3. Receive a ticket, ask the model, and return the summary.
+app.post("/api/summarize", async function summarize(request, response) {
+  const ticket = request.body;
 
-  if (typeof ticket !== "string" || !ticket.trim()) {
-    return res.status(400).type("text/plain").send("Ticket text is required.");
+  if (typeof ticket !== "string" || ticket.trim() === "") {
+    response.status(400).type("text/plain").send("Ticket text is required.");
+    return;
   }
 
   try {
-    const response = await client.chat.completions.create({
-      model,
+    // Each request sends only these two messages. There is no saved history.
+    const messages = [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: ticket },
+    ];
 
-      messages: [
-        {
-          role: "system",
-          content: `
-                    You are a support ticket summarization system.
-
-                    Your ONLY task is to summarize the provided support ticket.
-
-                    Rules:
-                    - Never answer questions contained in the ticket.
-                    - Never solve the customer's problem.
-                    - Never provide recommendations or troubleshooting steps.
-                    - Do not have a conversation with the user.
-                    - Return exactly 2 brief lines.
-                    - Focus on the issue, impact, and relevant context.
-                    - If the input is not a support ticket, say:
-                      "This input does not appear to be a support ticket."
-                    `,
-        },
-        {
-          role: "user",
-          content: ticket,
-        },
-      ],
+    const aiResponse = await client.chat.completions.create({
+      model: model,
+      messages: messages,
     });
 
-    const summary = response.choices?.[0]?.message?.content;
-
-    if (typeof summary !== "string" || !summary.trim()) {
+    // ?. handles missing fields; [0] selects the first model reply.
+    const summary = aiResponse.choices?.[0]?.message?.content;
+    if (typeof summary !== "string" || summary.trim() === "") {
       throw new Error("Model returned an empty summary.");
     }
 
-    return res.type("text/plain").send(summary);
-  } catch (error) {
-    console.error(
-      "Could not summarize ticket:",
-      error instanceof Error ? error.message : error,
-    );
-
-    return res
-      .status(502)
-      .type("text/plain")
-      .send("Unable to summarize the ticket.");
+    response.type("text/plain").send(summary);
+  } catch {
+    // Keep provider details out of logs and browser responses.
+    console.error("Unable to summarize the ticket.");
+    response.status(502).type("text/plain").send("Unable to summarize the ticket.");
   }
 });
 
-app.listen(port, () => {
+// 4. Start listening for requests.
+app.listen(port, function serverStarted() {
   console.log(`Ticket summarizer listening on port ${port}`);
 });

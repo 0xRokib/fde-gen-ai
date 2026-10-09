@@ -72,7 +72,7 @@ On the second turn, the model receives messages shaped like this:
 
 `POST /api/chat` accepts nonempty plain text, up to `100kb`. Invalid input returns `400` before calling the model.
 
-Inside the queued operation:
+The route queues `getReply(message)`, which prepares the model request:
 
 ```js
 const messages = history.slice();
@@ -94,7 +94,7 @@ After reading and checking the first reply, the server saves both sides:
 
 ```js
 history.push({ role: "user", content: message });
-history.push({ role: "assistant", content: aiReply });
+history.push({ role: "assistant", content: reply });
 ```
 
 If the call fails or returns an empty reply, saved history stays unchanged. Successful replies return as plain text. Express 5 forwards async failures to the shared error handler.
