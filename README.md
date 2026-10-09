@@ -11,7 +11,7 @@ Follow the chapters in order. Each guide includes setup, requests you can run, a
 | Chapter | Build | Learn |
 | --- | --- | --- |
 | [01 — Basic LLM Call Server](./01-basic-llm-call-server/) | A support-ticket summarizer | Provider configuration, system/user messages, API calls, and input validation |
-| [02 — Customer Support Chat Server](./02-customer-support-chat-server/) | A food-ordering support chatbot | Conversation history, follow-up context, ordered requests, and resetting a chat |
+| [02 — Customer Support Chat Server](./02-customer-support-chat-server/) | A food-ordering support chatbot with a plain browser frontend | Conversation history, follow-up context, ordered requests, resetting a chat, and connecting HTML/CSS/JavaScript to an API |
 
 **01 handles one ticket at a time. 02 continues a conversation.** Both use the same provider settings and Chat Completions API. Chapter 02 remembers messages in a shared server-side array and resends them on later calls—not through model training or a database.
 
@@ -34,9 +34,36 @@ npm start
 
 The OpenAI SDK can call a compatible custom provider; it does not mean requests go to OpenAI. The base URL determines the service used.
 
-Follow the [Chapter 01 guide](./01-basic-llm-call-server/README.md) to send your first ticket. Both lessons use `http://localhost:8080` in their examples; stop one before starting the other on the same port. These are APIs, not websites—opening `/` in a browser will not show a page.
+Follow the [Chapter 01 guide](./01-basic-llm-call-server/README.md) to send your first ticket. Both lessons use `http://localhost:8080` in their examples; stop one before starting the other on the same port. Chapter 01 is API-only. Chapter 02 also serves a plain HTML, CSS, and JavaScript chat page at `/`.
 
 On Windows PowerShell, use `Copy-Item .env.example .env` instead of `cp`.
+
+## Run the Chapter 02 chat page
+
+After configuring Chapter 01, stop its server with `Ctrl+C`. From the repository root, run:
+
+```bash
+cd 02-customer-support-chat-server
+npm ci
+```
+
+If Chapter 02 does not already have a configured `.env`, copy Chapter 01's settings:
+
+```bash
+cp ../01-basic-llm-call-server/.env .env
+```
+
+Then start the server:
+
+```bash
+npm start
+```
+
+Open `http://localhost:8080` in your browser, write a message, and click **Send message**. Use **New chat** to reset the conversation. If you changed `PORT`, use that port in the browser address.
+
+The frontend uses only HTML, CSS, and browser JavaScript in `02-customer-support-chat-server/public/`. The same server serves the page and API; no frontend framework, separate frontend server, or build command is needed.
+
+Run `npm run check` inside the chapter folder to check server and frontend JavaScript syntax. See the [Chapter 02 guide](./02-customer-support-chat-server/README.md) for browser checks and troubleshooting.
 
 ## How to study
 

@@ -9,7 +9,7 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
-    "check": "node --check src/server.js"
+    "check": "node --check src/server.js && node --check public/chat.js"
   },
   "dependencies": {
     "cors": "^2.8.5",

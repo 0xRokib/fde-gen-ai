@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tomato Support Chat</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="style.css" />
+    <script src="chat.js" defer></script>
+  </head>
+  <body>
+    <main class="chat">
+      <header>
+        <div>
+          <p class="brand">TOMATO / SUPPORT</p>
+          <h1>How can we help?</h1>
+        </div>
+        <button id="reset-button" type="button">New chat</button>
+      </header>
+      <section class="conversation" aria-label="Conversation">
+        <div id="welcome">
+          <h2>Let's talk about your order.</h2>
+          <p>Ask about a late delivery, a refund, or an order question.</p>
+          <p>This is an AI demo. It cannot look up orders or issue refunds.</p>
+        </div>
+        <div id="messages" role="log" aria-label="Chat messages" aria-live="polite"></div>
+      </section>
+      <form id="chat-form">
+        <label for="message-input">Your message</label>
+        <textarea id="message-input" rows="3" maxlength="20000" required
+          placeholder="My order is late. What should I do?"></textarea>
+        <div class="form-bottom">
+          <p id="status" role="status" aria-live="polite">Ready when you are.</p>
+          <button id="send-button" type="submit">Send message</button>
+        </div>
+      </form>
+      <footer>
+        Shared demo: New chat clears the conversation for everyone.
+        Refreshing this page hides messages, but does not reset the server.
+      </footer>
+    </main>
+  </body>
+</html>

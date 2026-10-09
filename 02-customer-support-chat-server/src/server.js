@@ -2,6 +2,7 @@ import cors from "cors";
 import "dotenv/config";
 import express from "express";
 import OpenAI from "openai";
+import { fileURLToPath } from "node:url";
 
 const apiKey = process.env.NEPTUNE_API_KEY;
 const baseURL = process.env.NEPTUNE_BASE_URL;
@@ -46,6 +47,7 @@ When information is unavailable, explain that and suggest contacting the support
 app.disable("x-powered-by");
 app.use(cors());
 app.use(express.text({ type: "text/plain", limit: "100kb" }));
+app.use(express.static(fileURLToPath(new URL("../public", import.meta.url))));
 
 app.post("/api/chat", async function chat(request, response) {
   const message = request.body;

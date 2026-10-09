@@ -2,7 +2,7 @@
 
 Build a chatbot for **Tomato**, a fictional food-ordering app. It answers support questions and remembers earlier messages while the server runs.
 
-**You will learn:** conversation history, message roles, ordered requests, and resetting a chat. All code is in [`src/server.js`](./src/server.js).
+**You will learn:** conversation history, message roles, ordered requests, resetting a chat, and connecting a plain browser frontend. Server code is in [`src/server.js`](./src/server.js); frontend files are in [`public/`](./public/).
 
 ## How this builds on Chapter 01
 
@@ -41,7 +41,19 @@ The key, base URL, and model come from your provider. Do not append `/chat/compl
 npm start
 ```
 
-Default address: `http://localhost:8080`. Use `npm run dev` for automatic restarts. In another terminal, send plain text:
+Open `http://localhost:8080` in your browser to use the chat page. If you changed `PORT`, use that port instead. Type a message and click **Send message**. **New chat** clears the shared server conversation. No frontend framework or build step is needed.
+
+Keep the terminal running while you use the page. To stop the server, press `Ctrl+C` in that terminal. Open the localhost address, not `public/index.html` directly: the page needs the running server to send messages.
+
+The frontend has three files:
+
+- `public/index.html`: the message list, text box, and buttons.
+- `public/style.css`: the page layout and colors.
+- `public/chat.js`: sends plain text to `POST /api/chat` and resets with `DELETE /api` using `fetch()`.
+
+The server serves the page and API from the same address, so JavaScript uses `/api/chat` without a hardcoded port. Credentials stay on the server. Messages are displayed as text, not HTML.
+
+Use `npm run dev` for automatic restarts. You can also send plain text from another terminal:
 
 ```bash
 curl -X POST http://localhost:8080/api/chat \
@@ -67,7 +79,7 @@ curl -i -X DELETE http://localhost:8080/api
 
 Expected: `200 OK`, empty body. The next message has no earlier history.
 
-Opening `/` in a browser will not show a website. On Windows PowerShell, use `Copy-Item` instead of `cp`, and `curl.exe` with requests on one line.
+On Windows PowerShell, use `Copy-Item` instead of `cp`, and `curl.exe` with requests on one line.
 
 ## 3. How the code works
 
@@ -103,11 +115,31 @@ A queue is a waiting line. Processing one operation at a time keeps simultaneous
 
 ## 4. Checks and common problems
 
-Check syntax:
+### Check the JavaScript
+
+Run this inside `02-customer-support-chat-server`:
 
 ```bash
 npm run check
 ```
+
+This checks syntax in both `src/server.js` and `public/chat.js`. It does not start the server or test AI replies.
+
+### Check the chat page
+
+1. Run `npm start`, then open `http://localhost:8080`.
+2. Type `My food order is late.` and click **Send message**. Your message should appear, followed by an AI reply.
+3. While waiting, the page shows `Tomato Support is replying…` and disables the text box and buttons.
+4. Send `Can I cancel it?` to try a follow-up using the earlier conversation.
+5. Click **New chat**. After a successful reset, the messages disappear and the page shows `New chat ready.`
+6. Try sending only spaces. The page should ask you to write a message without calling the model.
+7. Make the browser window narrow to check that the chat remains usable on a small screen.
+
+If sending fails, the page shows an error and keeps your draft so you can retry. If resetting fails, it keeps the visible conversation.
+
+Valid messages call your provider and may cost money. All browser tabs and API callers share the same server history. Refreshing the page clears only the visible message list; use **New chat** to reset the server conversation.
+
+### Check the API directly (optional)
 
 With the server running, check blank-input rejection without calling the model:
 
@@ -120,6 +152,9 @@ curl -i -X POST http://localhost:8080/api/chat \
 Expected: `400` with `Message text is required.` There is no automated test suite. Valid chat examples call your provider and may cost money; syntax checks do not verify provider compatibility.
 
 - **Missing settings:** fill in `.env` and run from this lesson's folder.
+- **Page does not open:** check that `npm start` is still running and that the browser address uses the port from `.env`.
+- **Page opened as a local file:** use `http://localhost:8080`, not a `file://` address. No separate frontend server or Live Server extension is needed.
+- **Changes do not appear:** refresh the browser after editing frontend files. Restart the server after server changes, or use `npm run dev`.
 - **`EADDRINUSE`:** stop Chapter 01 or change `PORT`.
 - **`400`:** send non-empty plain text, not JSON.
 - **`413`:** the request body exceeds `100kb`.
@@ -137,6 +172,6 @@ Keep this localhost-only demo local. It has no authentication or rate limiting, 
 
 History grows without a conversation limit, increasing cost and eventually risking model context limits. A slow model call delays every queued operation.
 
-The model cannot access real orders, issue refunds, or look up company policies. Prompts guide behavior but do not guarantee correct answers or prevent all prompt injection. No database, browser interface, or streaming is included.
+The model cannot access real orders, issue refunds, or look up company policies. Prompts guide behavior but do not guarantee correct answers or prevent all prompt injection. No database or streaming is included. Refreshing the page hides its message list without resetting the server's history. There are no private customer sessions.
 
 [Back to the learning index](../README.md)

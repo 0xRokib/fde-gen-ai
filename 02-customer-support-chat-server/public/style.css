@@ -1,0 +1,86 @@
+:root {
+  --background: #f6f3ee;
+  --surface: #ffffff;
+  --text: #292723;
+  --muted: #615c55;
+  --border: #ddd7ce;
+  --accent: #a62e20;
+  --user-background: #fbece7;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  padding: 2rem 1rem;
+  background: var(--background);
+  color: var(--text);
+  font-family: Arial, sans-serif;
+  line-height: 1.5;
+}
+.chat {
+  max-width: 48rem;
+  margin: 0 auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+.brand { color: var(--accent); font-size: 0.75rem; font-weight: bold; letter-spacing: 0.1em; }
+h1 { margin: 0; font-size: 1.75rem; }
+h2 { margin: 0 0 0.5rem; font-size: 1.25rem; }
+p { margin: 0; }
+.conversation { height: 24rem; overflow-y: auto; padding: 1.5rem; }
+#welcome { padding: 3rem 0; }
+#welcome p { color: var(--muted); margin-top: 0.75rem; }
+.message { max-width: 90%; margin-bottom: 1rem; padding: 0.75rem 1rem; border-radius: 0.5rem; }
+.user { margin-left: auto; background: var(--user-background); }
+.assistant { background: var(--background); }
+.message strong { display: block; margin-bottom: 0.25rem; font-size: 0.75rem; }
+.message p { white-space: pre-wrap; overflow-wrap: anywhere; }
+form { padding: 1.5rem; border-top: 1px solid var(--border); }
+label { display: block; margin-bottom: 0.5rem; font-weight: bold; }
+textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 0.25rem;
+  resize: vertical;
+  font: inherit;
+  color: var(--text);
+  background: var(--surface);
+}
+.form-bottom { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-top: 0.75rem; }
+#status { color: var(--muted); font-size: 0.875rem; overflow-wrap: anywhere; }
+#status.error { color: var(--accent); }
+button {
+  min-height: 2.75rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--accent);
+  border-radius: 0.25rem;
+  background: var(--accent);
+  color: white;
+  font: inherit;
+  font-weight: bold;
+  cursor: pointer;
+}
+#reset-button { background: var(--surface); color: var(--accent); }
+button:hover { filter: brightness(0.9); }
+button:disabled { opacity: 0.6; cursor: wait; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+footer { padding: 0 1.5rem 1.5rem; font-size: 0.75rem; color: var(--muted); }
+@media (max-width: 480px) {
+  body { padding: 0.5rem; }
+  header, form, .conversation { padding: 1rem; }
+  h1 { font-size: 1.25rem; }
+  .conversation { height: 20rem; }
+  .form-bottom { align-items: stretch; flex-direction: column; }
+  footer { padding: 0 1rem 1rem; }
+}
