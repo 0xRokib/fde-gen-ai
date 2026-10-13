@@ -1,8 +1,8 @@
 # Chapter 01 — Your First LLM Call
 
-Build a **support-ticket summarizer**: send a customer's problem to your server and receive a short AI-generated summary.
+Build a support-ticket summarizer. Send a customer's problem to your server and receive a short AI-generated summary.
 
-By the end, you should understand how to configure a model provider, separate instructions from input, make an API call, and handle invalid input or failed calls.
+You will configure a model provider, separate instructions from input, and handle blank tickets or failed API calls.
 
 ## 1. Set up and run
 
@@ -30,7 +30,7 @@ PORT=8080
 - **Model:** the exact model ID supplied by your provider.
 - **Port:** where your local server listens.
 
-These are placeholders, not working credentials. The OpenAI SDK can call compatible providers; `NEPTUNE_` is just the variable naming used in this project.
+Replace these placeholders with your provider settings. The OpenAI SDK can call compatible providers; this project names its environment variables with the `NEPTUNE_` prefix.
 
 Start the server:
 
@@ -63,7 +63,7 @@ Wording varies by model. Send plain text, not JSON. This chapter is API-only: op
 
 ## 3. Follow the code
 
-Open [`src/server.js`](./src/server.js). The flow is: receive ticket, validate it, call the model, return summary.
+Open [`src/server.js`](./src/server.js). The server validates the ticket, calls the model, and returns the summary.
 
 ### A. Configuration and server
 
@@ -97,9 +97,9 @@ const response = await client.chat.completions.create({
 - **`user`:** the ticket being processed.
 - **`await`:** waits for the provider's reply.
 
-The full prompt asks for issue, impact, and context—not advice or a conversation. It also asks the model to reject non-ticket input.
+The full prompt asks for the issue, impact, and context. It tells the model to reject non-ticket input and avoid advice or conversation.
 
-**Prompt vs. guarantee:** Asking for exactly two lines does not enforce two lines. Code validates the input and checks for a nonempty reply; it does not verify summary accuracy or format.
+The server checks for nonempty input and a nonempty reply. It does not enforce the requested two-line format or verify summary accuracy.
 
 ### D. Read the reply
 
@@ -111,7 +111,7 @@ const summary = response.choices?.[0]?.message?.content;
 
 The server returns the summary as plain text. If the model call fails or the reply is empty, it returns `502` with a generic error message.
 
-**No conversation memory:** Every call sends only the system prompt and current ticket. Earlier tickets are not saved or resent.
+Every call sends only the system prompt and current ticket. The server does not save or resend earlier tickets.
 
 ## 4. Check and experiment
 
@@ -131,7 +131,7 @@ curl -i -X POST http://localhost:8080/api/summarize \
 
 Expect `400` and `Ticket text is required.` There is no automated test suite; syntax checks do not verify provider compatibility.
 
-Try these small exercises:
+Exercises:
 
 1. Request three bullet points instead of two lines. Compare several replies.
 2. Send a non-ticket question. Does the model follow the rejection instruction?
@@ -147,6 +147,8 @@ Try these small exercises:
 - **`413`:** request body exceeds `100kb`.
 - **`502`:** check provider key, base URL, model, quota, and connectivity.
 
-Use fictional tickets: text goes to your provider and calls may cost money. Keep keys private. Model output can be wrong, and prompts are not security guarantees. No authentication or rate limiting; this server does not explicitly bind to localhost, so keep it in a trusted local environment rather than deploying it publicly.
+Use fictional tickets. Your provider receives the text, and calls may cost money. Keep keys private and check summaries before using them. Prompts cannot guarantee correct output or prevent prompt injection.
+
+This server has no authentication or rate limiting and does not explicitly bind to localhost. Run it in a trusted local environment; do not expose it publicly.
 
 [Next: Chapter 02 — Support Chat](../02-customer-support-chat-server/README.md) · [All chapters](../README.md)

@@ -1,8 +1,8 @@
 # Chapter 02 — A Chatbot with Conversation History
 
-Build a browser support chatbot for **Tomato**, a fictional food-ordering app.
+Build a browser support chatbot for Tomato, a fictional food-ordering app.
 
-Chapter 01 sent one ticket per model call. Here, you also send earlier messages so the model can understand follow-ups. You will learn message history, request ordering, chat resets, and connecting a browser to your API.
+Chapter 01 sent one ticket per model call. This chapter sends earlier messages too, so the model has context for follow-up questions. You will connect the browser to your API, save conversation history, queue requests, and reset the chat.
 
 ## 1. Set up and run
 
@@ -41,13 +41,13 @@ Use `npm run dev` for automatic server restarts while editing.
 2. Wait for the reply, then send **Can I cancel it?**
 3. Click **New chat**, then ask **What problem did I mention?**
 
-The second message gets earlier turns as context, helping the model interpret “it.” After reset, those earlier turns are no longer sent. Exact replies vary by model.
+The model receives earlier turns with the second message, so it can interpret “it” as your order. Reset removes those turns from later calls. Exact replies vary by model.
 
 The bot has no real order data, refund tools, or company policy documents. It can suggest contacting support, but cannot look up your order or issue a refund.
 
 ## 3. Understand conversation memory
 
-Open [`src/server.js`](./src/server.js). `history` is an array in server memory. It begins with a **system** message defining the bot's role and boundaries.
+Open [`src/server.js`](./src/server.js). The `history` array starts with a system message defining the bot's role and boundaries.
 
 On the second turn, the model receives messages shaped like this:
 
@@ -64,7 +64,7 @@ On the second turn, the model receives messages shaped like this:
 - **`user`:** customer's messages.
 - **`assistant`:** model's earlier replies.
 
-**The model is not being trained.** Your server saves text and resends it on each call. Restarting the server loses the conversation; there is no database.
+The server stores messages in memory and resends them on each call. This does not train the model. Restarting the server clears the conversation; there is no database.
 
 ## 4. Follow a request through the backend
 
@@ -101,11 +101,9 @@ If the call fails or returns an empty reply, saved history stays unchanged. Succ
 
 ### C. Keep operations in order
 
-`runInOrder()` uses a Promise queue—a waiting line for chat and reset operations. One operation finishes before the next begins.
+`runInOrder()` queues chat and reset operations. Each operation finishes before the next begins, so overlapping requests cannot save turns out of order or reset history during a model call. Catching a failure keeps later requests from getting stuck.
 
-This prevents overlapping model calls from saving turns in confusing order, and prevents resets during active calls. A caught failure keeps the queue usable for later requests.
-
-**Ordering is not privacy:** all callers still share the same history. A slow call also delays everyone behind it.
+All callers still share the same history. A slow call delays everyone behind it.
 
 ### D. Reset the chat
 
@@ -115,7 +113,7 @@ This prevents overlapping model calls from saving turns in confusing order, and 
 history.length = 1;
 ```
 
-Only the first item—the system prompt—remains. Customer messages and model replies are removed. Reset returns `200` with an empty body.
+The system prompt remains as the first item. Reset removes customer messages and model replies, then returns `200` with an empty body.
 
 ## 5. Connect the browser
 
@@ -139,7 +137,7 @@ const response = await fetch("/api/chat", {
 
 The page disables input and buttons while waiting. On success, it displays the reply and clears the input. On failure, it keeps your draft for retry. Messages use `textContent`, so replies display as text rather than HTML.
 
-**New chat** calls `DELETE /api` and clears visible messages after success. **Refreshing is different:** it hides browser messages but does not reset server history.
+**New chat** calls `DELETE /api` and clears visible messages after success. Refreshing the page clears visible messages but leaves server history intact.
 
 ## 6. Check and experiment
 
@@ -170,7 +168,7 @@ Exercises:
 1. Change one tone instruction in the system prompt and compare replies.
 2. Ask an unrelated question. Does the bot follow its topic restriction?
 3. Limit saved history while preserving the system prompt and complete turns.
-4. As a bigger next step, give each session its own history.
+4. Give each session its own history.
 
 **Check your understanding:** Why save assistant replies too? Why copy history before calling the model? Does the queue create separate customer conversations? What is the difference between refresh and reset?
 
@@ -183,8 +181,8 @@ Exercises:
 - **`413`:** request body exceeds `100kb`.
 - **`502`:** check provider key, URL, model, quota, and connectivity.
 
-All callers share one conversation; any caller can reset it. History grows without a limit, increasing token usage and cost, and eventually risking the model's context limit. Prompts guide behavior but cannot guarantee correct answers or prevent all prompt injection.
+All callers share one conversation, and any caller can reset it. The server resends the growing history on each turn, which increases token usage and cost. Eventually, it can exceed the model's context limit. Prompts cannot guarantee correct answers or prevent all prompt injection.
 
-Keep this localhost-only demo local: it has no authentication or rate limiting. Use fictional messages, keep API keys private, and remember that conversation text goes to your provider.
+Keep this localhost-only demo local. It has no authentication or rate limiting. Use fictional messages and keep API keys private; your provider receives the conversation text.
 
-[Previous: Chapter 01](../01-basic-llm-call-server/README.md) · [All chapters](../README.md)
+[Previous: Chapter 01](../01-basic-llm-call-server/README.md) · [Next: Chapter 03](../03-tool-calling-chat-server/README.md) · [All chapters](../README.md)
