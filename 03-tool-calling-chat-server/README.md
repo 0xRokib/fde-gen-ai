@@ -148,7 +148,7 @@ Try these exercises:
 
 1. Compare the terminal tool logs for arithmetic and currency conversion.
 2. Generate a small site, inspect its files, and request one change.
-3. Fix the chat prompt's `convertCurrency` name to match the actual `getExchangeRate` tool.
+3. Try a currency conversion and check whether the model calls both `getExchangeRate` and `calculate`.
 4. Add a tool-loop limit or save tool transcripts for follow-up context.
 
 **Check your understanding:** Who executes the tools? What links a tool result to its call? Which history does each reset clear? Does a failed generation undo written files?
@@ -161,7 +161,6 @@ Try these exercises:
 - **`502`:** check provider configuration, quota, model tool support, and tool-service availability. The server hides upstream error details from the browser.
 - **Weather fails:** add `WEATHER_API_KEY` and check your WeatherAPI account.
 - **Generation fails midway:** inspect `generated-sites/` before retrying. Written files are not rolled back.
-- **Currency conversion is inconsistent:** the source prompt names `convertCurrency`, while the tool is `getExchangeRate`. That source mismatch remains in this implementation.
 
 This localhost-only demo has no authentication or rate limiting. Anyone who can access it shares the conversations and can reset them. The tool loop, saved history, and workspace storage have no application-level caps. Long requests can delay other callers and make several paid provider calls.
 

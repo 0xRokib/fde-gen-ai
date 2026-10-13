@@ -18,7 +18,7 @@ Follow these rules:
 1. For arithmetic calculations, ALWAYS use the calculator tool.
 2. Always use calculator tool for even trivial calculation
 3. For current weather, ALWAYS use the currentWeather tool.
-4. For currency conversion or exchange rates, ALWAYS use the convertCurrency tool.
+4. For currency conversion or exchange rates, ALWAYS use the getExchangeRate tool. For currency conversion, use the calculate tool to multiply the amount by the returned rate.
 5. You may call multiple tools when solving a multi-step request.
 6. After receiving tool results, explain the answer naturally.
 7. Never invent current weather or exchange-rate information.`;
